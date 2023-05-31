@@ -1,0 +1,5 @@
+*.ddl
+*.sql
+*.db
+.vscode
+__pycache__
