@@ -33,24 +33,24 @@ create table denuncia (
      constraint REF_denun_usuar foreign key (FK_usuario_matricula) references usuario);
 
 create table departamento (
-     sigla char(3) not null,
+     codigo char(4) not null,
      nome varchar(100) not null,
-     constraint ID_departamento_ID primary key (sigla));
+     constraint ID_departamento_ID primary key (codigo));
 
 create table disciplina (
      codigo char(7) not null,
      nome char(100) not null,
-     sigla char(3) not null,
+     FK_departamento_codigo char(4) not null,
      constraint ID_disciplina_ID primary key (codigo),
-     constraint REF_disci_depar_FK foreign key (sigla) references departamento);
+     constraint REF_disci_depar_FK foreign key (FK_departamento_codigo) references departamento);
 
 create table professor (
      matricula varchar(9) not null,
      nom_prim_nome varchar(15) not null,
      nom_sobrenome varchar(30) not null,
-     sigla char(3) not null,
+     FK_departamento_codigo char(4) not null,
      constraint ID_professor_ID primary key (matricula),
-     constraint REF_profe_depar_FK foreign key (sigla) references departamento);
+     constraint REF_profe_depar_FK foreign key (FK_departamento_codigo) references departamento);
 
 create table professor_turma (
      FK_professor_matricula varchar(9) not null,
@@ -114,19 +114,19 @@ create unique index ID_denuncia_IND
      on denuncia (FK_usuario_matricula, FK_usuario_denunciado_matricula, FK_professor_matricula, FK_disciplina_codigo, FK_avaliacao_disc_ou_prof);
 
 create unique index ID_departamento_IND
-     on departamento (sigla);
+     on departamento (codigo);
 
 create unique index ID_disciplina_IND
      on disciplina (codigo);
 
 create index REF_disci_depar_IND
-     on disciplina (sigla);
+     on disciplina (FK_departamento_codigo);
 
 create unique index ID_professor_IND
      on professor (matricula);
 
 create index REF_profe_depar_IND
-     on professor (sigla);
+     on professor (FK_departamento_codigo);
 
 create unique index ID_professor_turma_IND
      on professor_turma (FK_disciplina_codigo, FK_turma_numero, FK_turma_semestre, FK_professor_matricula);
