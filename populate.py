@@ -8,6 +8,8 @@ db = sqlite3.connect('./ratings.db',)
 cursor = db.cursor()
 cursor.execute('pragma foreign_keys = on')
 
+matGen = lambda : ''.join([str(choice(range(10))) for _ in range(9)])
+proMat: dict[tuple[str,str],str] = {}
 for semester in ['2022-1','2022-2','2023-1']:
     folder: str = './populate_data/'
     with open(f'{folder}departamentos_{semester}.csv',encoding='utf8') as file:
@@ -39,6 +41,40 @@ for semester in ['2022-1','2022-2','2023-1']:
                 cursor.execute('''insert into disciplina (codigo,nome,
                                   FK_departamento_codigo) values (?,?,?)''',
                                   [codigo,nome,codigoDepartamento])
+            except sqlite3.IntegrityError as e:
+                for arg in e.args:
+                    if not ('UNIQUE' in arg or 'FOREIGN KEY' in arg):
+                        raise e
+    with open(f'{folder}turmas_{semester}.csv',encoding='utf8') as file:
+        for row in csv.reader(file):
+            if row[0] == 'turma':
+                continue
+            matricula: str = matGen()
+            hasName: bool = bool(row[2].split('(')[0])
+            if hasName:
+                professor_nome: str = row[2].split()[0]
+                professor_sobrenome: str = row[2].split(maxsplit=1)[1]
+                professor_sobrenome = professor_sobrenome.split('(')[0].strip()
+                key: tuple[str, str] = (professor_nome,professor_sobrenome)
+            else:
+                professor_nome,professor_sobrenome,key = '','',('','')
+            codigoDepartamento: str = row[8].rjust(4,'0')
+            insProf: bool  = (not (key in proMat)
+                              and validate.proMatricula(matricula)
+                              and validate.primNome(professor_nome)
+                              and validate.sobrenome(professor_sobrenome)
+                              and validate.depCodigo(codigoDepartamento))
+            try:
+                if hasName and insProf:
+                    proMat[key] = matricula
+                    cursor.execute('''insert into professor (matricula,
+                                      nom_prim_nome,nom_sobrenome,
+                                      FK_departamento_codigo)
+                                      values (?,?,?,?)''',
+                                      [matricula,professor_nome,
+                                       professor_sobrenome,codigoDepartamento])
+                elif hasName:
+                    matricula = proMat[key]
             except sqlite3.IntegrityError as e:
                 for arg in e.args:
                     if not ('UNIQUE' in arg or 'FOREIGN KEY' in arg):
