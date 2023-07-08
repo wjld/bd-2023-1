@@ -50,6 +50,8 @@ for semester in ['2022-1','2022-2','2023-1']:
             if row[0] == 'turma':
                 continue
             matricula: str = matGen()
+            numero: str = row[0]
+            semestre: str = row[1]
             hasName: bool = bool(row[2].split('(')[0])
             if hasName:
                 professor_nome: str = row[2].split()[0]
@@ -58,6 +60,7 @@ for semester in ['2022-1','2022-2','2023-1']:
                 key: tuple[str, str] = (professor_nome,professor_sobrenome)
             else:
                 professor_nome,professor_sobrenome,key = '','',('','')
+            codigoDisciplina: str = row[7].replace('/','').replace('-','')
             codigoDepartamento: str = row[8].rjust(4,'0')
             insProf: bool  = (not (key in proMat)
                               and validate.proMatricula(matricula)
@@ -75,6 +78,26 @@ for semester in ['2022-1','2022-2','2023-1']:
                                        professor_sobrenome,codigoDepartamento])
                 elif hasName:
                     matricula = proMat[key]
+            except sqlite3.IntegrityError as e:
+                for arg in e.args:
+                    if not ('UNIQUE' in arg or 'FOREIGN KEY' in arg):
+                        raise e
+            if (not validate.turNumero(numero)
+                or not validate.turSemestre(semestre)):
+                continue
+            try:
+                cursor.execute('''insert into turma (FK_disciplina_codigo,
+                                  numero,semestre)
+                                  values (?,?,?)''',
+                                  [codigoDisciplina,numero,semestre])
+                if insProf:
+                    cursor.execute('''insert into professor_turma (
+                                      FK_professor_matricula,
+                                      FK_disciplina_codigo,
+                                      FK_turma_numero,FK_turma_semestre)
+                                      values (?,?,?,?)''',
+                                      [matricula,codigoDisciplina,numero,
+                                       semestre,])
             except sqlite3.IntegrityError as e:
                 for arg in e.args:
                     if not ('UNIQUE' in arg or 'FOREIGN KEY' in arg):
