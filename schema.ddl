@@ -19,7 +19,7 @@ create table avaliacao (
      constraint REF_avali_usuar_FK foreign key (FK_usuario_matricula) references usuario,
      constraint REF_avali_profe_FK foreign key (FK_professor_matricula) references professor,
      constraint REF_avali_disci foreign key (FK_disciplina_codigo) references disciplina,
-     constraint MAX_avaliacao_nota check (nota > 0 and nota < 5));
+     constraint MAX_avaliacao_nota check (nota >= 0 and nota <= 5));
 
 create table denuncia (
      justificativa varchar(100),
@@ -34,12 +34,12 @@ create table denuncia (
 
 create table departamento (
      codigo char(4) not null,
-     nome varchar(100) not null,
+     nome varchar(150) not null,
      constraint ID_departamento_ID primary key (codigo));
 
 create table disciplina (
      codigo varchar(13) not null,
-     nome char(100) not null,
+     nome char(150) not null,
      FK_departamento_codigo char(4) not null,
      constraint ID_disciplina_ID primary key (codigo),
      constraint REF_disci_depar_FK foreign key (FK_departamento_codigo) references departamento);
