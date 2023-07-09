@@ -11,6 +11,22 @@ class DbConnect:
         self.db.commit()
         self.cursor.close()
 
+    def avg(self, order: str, type: str) -> list[tuple[str, str]]:
+        if type == 'Disciplinas':
+            self.cursor.execute(f'''select avg(a.nota) as media, d.nome
+                                    from disciplina d inner join avaliacao a
+                                    on d.codigo = a.FK_disciplina_codigo
+                                    group by d.codigo
+                                    order by media {order} limit 100;''')
+        elif type == 'Professores':
+            self.cursor.execute(f'''select avg(a.nota) as media,
+                                    p.nom_prim_nome, p.nom_sobrenome
+                                    from professor p inner join avaliacao a
+                                    on p.matricula = a.FK_professor_matricula
+                                    group by p.matricula
+                                    order by media {order} limit 100;''')
+        return self.cursor.fetchall()[::-1]
+
     def hasAdmins(self):
         self.cursor.execute('''select count(*) from usuario
                                where administrador = 1''')

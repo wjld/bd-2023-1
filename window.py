@@ -34,7 +34,11 @@ class Window:
     def styleConfig(self, w: Tk, s: ttk.Style, x: int, y: int) -> None:
         s.configure("title.TLabel",anchor="center",font=("Roboto",
                     int(-y*0.085)))
+        s.configure("ratings.TLabel",anchor="center",
+                    font=("Roboto",int(-y*0.040)))
         s.configure("options.TButton",font=("Roboto",int(-y*0.04)))
+        w.option_add("*TCombobox*Listbox.font",("Roboto",int(-y*0.04)))
+        w.option_add("*TCombobox*Listbox.justify","center")
 
     def isResizing(self,event):
         return (event.width,event.height) != self.size
