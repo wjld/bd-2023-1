@@ -10,3 +10,8 @@ class DbConnect:
     def close(self) -> None:
         self.db.commit()
         self.cursor.close()
+
+    def hasAdmins(self):
+        self.cursor.execute('''select count(*) from usuario
+                               where administrador = 1''')
+        return self.cursor.fetchall()[0][0]
