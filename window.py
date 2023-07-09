@@ -38,6 +38,14 @@ class Window:
 
     def isResizing(self,event):
         return (event.width,event.height) != self.size
+
+    def split(self,frame,xLength,yLength,xSize,ySize,i=0):
+        if i < xLength or i < yLength:
+            if i < xLength:
+                frame.columnconfigure(i,minsize=xSize,weight=1)
+            if i < yLength:
+                frame.rowconfigure(i,minsize=ySize,weight=1)
+            self.split(frame,xLength,yLength,xSize,ySize,i+1)
     
     def destroy(self):
         self.connection.close()
