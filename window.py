@@ -37,8 +37,8 @@ class Window:
         s.configure("ratings.TLabel",anchor="center",
                     font=("Roboto",int(-y*0.040)))
         s.configure("signin.TLabel",anchor="center",
-                    font=("Roboto",int(-y*0.035)))
-        s.configure("options.TButton",font=("Roboto",int(-y*0.04)))
+                    font=("Roboto",int(-y*0.037)))
+        s.configure("options.TButton",font=("Roboto",int(-y*0.042)))
         w.option_add("*TCombobox*Listbox.font",("Roboto",int(-y*0.04)))
         w.option_add("*TCombobox*Listbox.justify","center")
 
