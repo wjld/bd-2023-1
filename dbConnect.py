@@ -31,3 +31,10 @@ class DbConnect:
         self.cursor.execute('''select count(*) from usuario
                                where administrador = 1''')
         return self.cursor.fetchall()[0][0]
+
+    def signin(self,username,password):
+        self.cursor.execute(f'''select * from usuario
+                                where (matricula = "{username}"
+                                or email = "{username}")
+                                and senha = "{password}"''')
+        return self.cursor.fetchall()

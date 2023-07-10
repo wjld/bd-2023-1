@@ -1,11 +1,13 @@
 from tkinter import ttk
 from ranking import Ranking
+from signin import Signin
 
 class Titlescreen():
     def __init__(self,window):
         self.window = window
         self.titleframe = ttk.Frame(self.window.window)
         self.ranking = Ranking(self,window)
+        self.signin = Signin(self,window)
 
         self.titleframe.grid(sticky="nsew")
         x,y = self.window.window.minsize(None)
@@ -21,7 +23,7 @@ class Titlescreen():
                           style="title.TLabel")
         signUpB = ttk.Button(self.titleframe,command=lambda:None,
                               text="Cadastro",style="options.TButton")
-        signInB = ttk.Button(self.titleframe,command=lambda:None,
+        signInB = ttk.Button(self.titleframe,command=self.signinScreen,
                                text="Entrar",style="options.TButton")
         rankingB = ttk.Button(self.titleframe,command=self.rankingScreen,
                                   text="Ranking geral",style="options.TButton")
@@ -50,6 +52,10 @@ class Titlescreen():
     def rankingScreen(self):
         self.titleframe.grid_remove()
         self.ranking.display()
+
+    def signinScreen(self):
+        self.titleframe.grid_remove()
+        self.signin.display()
 
     def quit(self):
         self.window.destroy()
