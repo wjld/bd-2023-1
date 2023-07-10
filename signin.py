@@ -43,11 +43,11 @@ class Signin():
         username.event_add('<<entryFont>>','<Configure>','<Visibility>')
         username.bind("<<comboFont>>",lambda e:self.entryFont(e.widget,
                       *self.window.proportionalSize),add=True)
-        username.bind('<Return>',lambda e:self.done())
+        username.bind('<Key>',lambda e:self.manageKey(e))
         password.event_add('<<entryFont>>','<Configure>','<Visibility>')
         password.bind("<<comboFont>>",lambda e:self.entryFont(e.widget,
                       *self.window.proportionalSize),add=True)
-        password.bind('<Return>',lambda e:self.done())
+        password.bind('<Key>',lambda e:self.manageKey(e))
 
     def entryFont(self,entry,x,y):
         entry.configure(font=("Roboto",int(-y*0.035)))
@@ -68,6 +68,12 @@ class Signin():
             self.fields[2].grid_forget()
             self.frame.grid_remove()
             self.menu.display(userInfo[0])
+
+    def manageKey(self,event):
+        if event.keysym == 'Return':
+            self.done()
+        else:
+            self.fields[2].grid_forget()
 
     def back(self):
         for entry in self.fields[:2]:
