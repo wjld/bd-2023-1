@@ -103,7 +103,8 @@ class Ranking():
     def comboFont(self,comboBox,x,y):
         comboBox.configure(font=("Roboto",int(-y*0.04)))
 
-    def display(self):
+    def display(self,fromS):
+        self.fromS = fromS
         self.rootframe.grid()
         self.displayRanking()
         self.rootframe.update_idletasks()
@@ -111,4 +112,4 @@ class Ranking():
 
     def back(self):
         self.rootframe.grid_remove()
-        self.titlescreen.display()
+        self.fromS.display()

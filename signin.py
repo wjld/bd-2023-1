@@ -63,7 +63,11 @@ class Signin():
             self.fields[2].grid(row=13,column=6,rowspan=3,columnspan=8,
                                 sticky="nsew")
         else:
+            for entry in self.fields[:2]:
+                entry.delete(0,'end')
             self.fields[2].grid_forget()
+            self.frame.grid_remove()
+            self.menu.display(userInfo[0])
 
     def back(self):
         for entry in self.fields[:2]:

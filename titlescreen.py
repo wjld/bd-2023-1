@@ -51,7 +51,7 @@ class Titlescreen():
 
     def rankingScreen(self):
         self.titleframe.grid_remove()
-        self.ranking.display()
+        self.ranking.display(self)
 
     def signinScreen(self):
         self.titleframe.grid_remove()
