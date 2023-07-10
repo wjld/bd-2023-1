@@ -7,7 +7,7 @@ class Titlescreen():
         self.titleframe = ttk.Frame(self.window.window)
         self.ranking = Ranking(self,window)
 
-        self.titleframe.grid(rowspan=2,columnspan=2,sticky="nsew")
+        self.titleframe.grid(sticky="nsew")
         x,y = self.window.window.minsize(None)
         self.window.split(self.titleframe,20,50,x//20,y//50)
         self.setWidgets()
@@ -35,7 +35,7 @@ class Titlescreen():
         signInB.grid(row=30,column=5,rowspan=4,columnspan=10,sticky="nsew")
         rankingB.grid(row=35,column=5,rowspan=4,columnspan=10,sticky="nsew")
         quitB.grid(row=40,column=5,rowspan=4,columnspan=10,sticky="nsew")
-        
+
         signInB.bind("<Visibility>",self.hasAdmins)
 
     def hasAdmins(self, event):

@@ -13,11 +13,12 @@ class Ranking():
         self.orderVal = StringVar(self.window.window,"Nota ▾")
         self.orderSemesterVal = StringVar(self.window.window,"Semestre =")
 
-        self.rootframe.grid(rowspan=2,columnspan=2,sticky="nsew")
+        self.rootframe.grid(sticky="nsew")
         x,y = self.window.window.minsize(None)
         window.split(self.rootframe,20,50,x//20,y//50)
-        
-        self.rankingArea.grid(row=12,column=1,rowspan=31,columnspan=17,sticky='nsew')
+
+        self.rankingArea.grid(row=12,column=1,rowspan=31,columnspan=17,
+                              sticky='nsew')
         self.rankingFrame = ttk.Frame(self.rankingArea)
         self.rankingArea.create_window((0,0),window=self.rankingFrame,anchor='nw')
         vScrollbar = ttk.Scrollbar(self.rootframe,command=self.rankingArea.yview)
@@ -28,13 +29,12 @@ class Ranking():
         self.rankingArea.configure(yscrollcommand=vScrollbar.set,
                                    xscrollcommand=hScrollbar.set)
         self.rankingArea.bind_all("<MouseWheel>",self.scroll)
-        
+
         self.setWidgets()
         self.rootframe.grid_remove()
 
     def setWidgets(self):
-        title = ttk.Label(self.rootframe,text="Ranking",
-                          style="title.TLabel")
+        title = ttk.Label(self.rootframe,text="Ranking",style="title.TLabel")
         type = ttk.Combobox(self.rootframe,justify="center",state="readonly",
                             values=["Disciplinas","Professores"],width=5,
                             textvariable=self.typeVal)
@@ -52,9 +52,10 @@ class Ranking():
         orderScore.event_add('<<comboFont>>','<Configure>','<Visibility>')
         type.bind("<<ComboboxSelected>>",lambda e:self.displayRanking())
         orderScore.bind("<<ComboboxSelected>>",lambda e:self.displayRanking())
-        type.bind("<<ComboboxSelected>>",lambda e:self.window.window.focus(),add=True)
-        orderScore.bind("<<ComboboxSelected>>",lambda e:self.window.window.focus(),
-                        add=True)
+        type.bind("<<ComboboxSelected>>",lambda e:self.window.window.focus(),
+                  add=True)
+        orderScore.bind("<<ComboboxSelected>>",
+                        lambda e:self.window.window.focus(),add=True)
         type.bind("<<comboFont>>",lambda e:self.comboFont(e.widget,
                         *self.window.proportionalSize),add=True)
         orderScore.bind("<<comboFont>>",lambda e:self.comboFont(e.widget,
@@ -107,7 +108,7 @@ class Ranking():
         self.displayRanking()
         self.rootframe.update_idletasks()
         self.rankingArea.config(scrollregion=self.rankingArea.bbox("all"))
-    
+
     def back(self):
         self.rootframe.grid_remove()
         self.titlescreen.display()

@@ -50,7 +50,7 @@ class Window:
             if i < yLength:
                 frame.rowconfigure(i,minsize=ySize,weight=1)
             self.split(frame,xLength,yLength,xSize,ySize,i+1)
-    
+
     def destroy(self):
         self.connection.close()
         self.window.destroy()
