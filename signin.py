@@ -1,11 +1,14 @@
 from tkinter import StringVar, ttk, Canvas
 
+from menu import Menu
+
 class Signin():
     def __init__(self,titlescreen,window):
         self.titlescreen = titlescreen
         self.window = window
         self.connection = window.connection
         self.frame = ttk.Frame(self.window.window)
+        self.menu = Menu(titlescreen,window)
         self.fields = []
 
         self.frame.grid(sticky="nsew")
@@ -40,15 +43,18 @@ class Signin():
         username.event_add('<<entryFont>>','<Configure>','<Visibility>')
         username.bind("<<comboFont>>",lambda e:self.entryFont(e.widget,
                       *self.window.proportionalSize),add=True)
+        username.bind('<Return>',lambda e:self.done())
         password.event_add('<<entryFont>>','<Configure>','<Visibility>')
         password.bind("<<comboFont>>",lambda e:self.entryFont(e.widget,
                       *self.window.proportionalSize),add=True)
+        password.bind('<Return>',lambda e:self.done())
 
     def entryFont(self,entry,x,y):
         entry.configure(font=("Roboto",int(-y*0.035)))
 
     def display(self):
         self.frame.grid()
+        self.fields[0].focus()
     
     def done(self):
         username, password = self.fields[:2]
