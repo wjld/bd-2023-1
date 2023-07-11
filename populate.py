@@ -62,22 +62,30 @@ for semester in ['2022-1','2022-2','2023-1']:
                 professor_nome,professor_sobrenome,key = '','',('','')
             codigoDisciplina: str = row[7].replace('/','').replace('-','')
             codigoDepartamento: str = row[8].rjust(4,'0')
-            insProf: bool  = (not (key in proMat)
-                              and validate.proMatricula(matricula)
+            insProf: bool  = (validate.proMatricula(matricula)
                               and validate.primNome(professor_nome)
                               and validate.sobrenome(professor_sobrenome)
                               and validate.depCodigo(codigoDepartamento))
             try:
-                if hasName and insProf:
+                if insProf and not (key in proMat):
                     proMat[key] = matricula
                     cursor.execute('''insert into professor (matricula,
-                                      nom_prim_nome,nom_sobrenome,
-                                      FK_departamento_codigo)
-                                      values (?,?,?,?)''',
+                                      nom_prim_nome,nom_sobrenome)
+                                      values (?,?,?)''',
                                       [matricula,professor_nome,
-                                       professor_sobrenome,codigoDepartamento])
-                elif hasName:
+                                       professor_sobrenome])
+                    cursor.execute('''insert into departamento_professor
+                                      (FK_professor_matricula,
+                                      FK_departamento_codigo) 
+                                      values (?,?)''',
+                                      [matricula,codigoDepartamento])
+                elif insProf:
                     matricula = proMat[key]
+                    cursor.execute('''insert into departamento_professor
+                                      (FK_professor_matricula,
+                                      FK_departamento_codigo) 
+                                      values (?,?)''',
+                                      [matricula,codigoDepartamento])
             except sqlite3.IntegrityError as e:
                 for arg in e.args:
                     if not ('UNIQUE' in arg or 'FOREIGN KEY' in arg):

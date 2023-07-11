@@ -55,7 +55,7 @@ def usuCurso(s: str) -> bool:
     return bool(s) and len(s) <= 50 and s.isalpha()
 
 def depCodigo(s: str) -> bool:
-    return bool(s) and len(s) == 4 and s.isdigit()
+    return len(s) == 4 and s.isdigit()
 
 def depNome(s: str) -> bool:
     return bool(s) and len(s) <= 150
