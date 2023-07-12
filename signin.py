@@ -19,7 +19,6 @@ class Signin():
         self.frame.grid_remove()
 
     def setWidgets(self):
-        title = ttk.Label(self.frame,text="Entrar",style="title.TLabel")
         fail = ttk.Label(self.frame,text="Usuário ou senha incorretos",
                          style="signin.TLabel",background='#D06060')
         usuLabel = ttk.Label(self.frame,text="Usuário",style="signin.TLabel")
@@ -33,7 +32,6 @@ class Signin():
                            style="options.TButton")
         self.fields = [username,password,fail]
 
-        title.grid(row=1,column=3,rowspan=5,columnspan=14)
         usuLabel.grid(row=18,column=7,rowspan=3,columnspan=6,sticky="nsew")
         username.grid(row=21,column=6,rowspan=4,columnspan=8,sticky="nsew")
         senLabel.grid(row=26,column=7,rowspan=3,columnspan=6,sticky="nsew")

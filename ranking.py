@@ -18,11 +18,11 @@ class Ranking():
         x,y = self.window.window.minsize(None)
         window.split(self.rootframe,20,50,x//20,y//50)
 
-        self.rankingArea.grid(row=12,column=1,rowspan=31,columnspan=17,
+        self.rankingArea.grid(row=7,column=1,rowspan=36,columnspan=17,
                               sticky='nsew')
         self.rankingFrame = ttk.Frame()
         vScrollbar = ttk.Scrollbar(self.rootframe,command=self.rankingArea.yview)
-        vScrollbar.grid(row=12,column=18,rowspan=32,columnspan=1,sticky="ns")
+        vScrollbar.grid(row=7,column=18,rowspan=37,columnspan=1,sticky="ns")
         hScrollbar = ttk.Scrollbar(self.rootframe,orient='horizontal',
                                    command=self.rankingArea.xview)
         hScrollbar.grid(row=43,column=1,rowspan=1,columnspan=17,sticky='ew')
@@ -33,7 +33,6 @@ class Ranking():
         self.rootframe.grid_remove()
 
     def setWidgets(self):
-        title = ttk.Label(self.rootframe,text="Ranking",style="title.TLabel")
         type = ttk.Combobox(self.rootframe,justify="center",state="readonly",
                             values=["Turmas","Professores"],width=5,
                             textvariable=self.typeVal)
@@ -47,10 +46,9 @@ class Ranking():
         backB = ttk.Button(self.rootframe,command=self.back,text="Voltar",
                            style="options.TButton")
 
-        title.grid(row=1,column=3,rowspan=5,columnspan=14)
-        type.grid(row=7,column=2,rowspan=4,columnspan=4,sticky="nsew")
-        orderScore.grid(row=7,column=8,rowspan=4,columnspan=4,sticky="nsew")
-        selectSemester.grid(row=7,column=14,rowspan=4,columnspan=4,
+        type.grid(row=2,column=2,rowspan=4,columnspan=4,sticky="nsew")
+        orderScore.grid(row=2,column=8,rowspan=4,columnspan=4,sticky="nsew")
+        selectSemester.grid(row=2,column=14,rowspan=4,columnspan=4,
                            sticky="nsew")
         backB.grid(row=45,column=15,rowspan=4,columnspan=4,sticky="nsew")
         type.event_add('<<comboFont>>','<Configure>','<Visibility>')
