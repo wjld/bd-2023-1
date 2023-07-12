@@ -98,6 +98,11 @@ for semester in ['2022-1','2022-2','2023-1']:
                                   numero,semestre)
                                   values (?,?,?)''',
                                   [codigoDisciplina,numero,semestre])
+            except sqlite3.IntegrityError as e:
+                for arg in e.args:
+                    if not ('UNIQUE' in arg or 'FOREIGN KEY' in arg):
+                        raise e
+            try:
                 if insProf:
                     cursor.execute('''insert into professor_turma (
                                       FK_professor_matricula,
