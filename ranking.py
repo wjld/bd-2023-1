@@ -9,9 +9,10 @@ class Ranking():
         self.rankingArea = Canvas(self.rootframe)
 
         self.ratings = []
-        self.typeVal = StringVar(self.window.window,"Disciplinas")
+        self.typeVal = StringVar(self.window.window,"Turmas")
         self.orderVal = StringVar(self.window.window,"Nota ▾")
-        self.orderSemesterVal = StringVar(self.window.window,"Semestre =")
+        self.selectSemesterVal = StringVar(self.window.window,
+                                          self.connection.getSemester()[0])
 
         self.rootframe.grid(sticky="nsew")
         x,y = self.window.window.minsize(None)
@@ -36,42 +37,56 @@ class Ranking():
     def setWidgets(self):
         title = ttk.Label(self.rootframe,text="Ranking",style="title.TLabel")
         type = ttk.Combobox(self.rootframe,justify="center",state="readonly",
-                            values=["Disciplinas","Professores"],width=5,
+                            values=["Turmas","Professores"],width=5,
                             textvariable=self.typeVal)
         orderScore = ttk.Combobox(self.rootframe,justify="center",
                                   state="readonly",values=["Nota ▴","Nota ▾"],
                                   width=5,textvariable=self.orderVal)
+        selectSemester = ttk.Combobox(self.rootframe,justify="center",
+                                  state="readonly",width=5,
+                                  textvariable=self.selectSemesterVal,
+                                  values=self.connection.getSemester())
         backB = ttk.Button(self.rootframe,command=self.back,text="Voltar",
                            style="options.TButton")
 
         title.grid(row=1,column=3,rowspan=5,columnspan=14)
-        type.grid(row=7,column=3,rowspan=4,columnspan=4,sticky="nsew")
-        orderScore.grid(row=7,column=13,rowspan=4,columnspan=4,sticky="nsew")
+        type.grid(row=7,column=2,rowspan=4,columnspan=4,sticky="nsew")
+        orderScore.grid(row=7,column=8,rowspan=4,columnspan=4,sticky="nsew")
+        selectSemester.grid(row=7,column=14,rowspan=4,columnspan=4,
+                           sticky="nsew")
         backB.grid(row=45,column=15,rowspan=4,columnspan=4,sticky="nsew")
         type.event_add('<<comboFont>>','<Configure>','<Visibility>')
         orderScore.event_add('<<comboFont>>','<Configure>','<Visibility>')
+        selectSemester.event_add('<<comboFont>>','<Configure>','<Visibility>')
         type.bind("<<ComboboxSelected>>",lambda e:self.displayRanking())
         orderScore.bind("<<ComboboxSelected>>",lambda e:self.displayRanking())
+        selectSemester.bind("<<ComboboxSelected>>",
+                           lambda e:self.displayRanking())
         type.bind("<<ComboboxSelected>>",lambda e:self.window.window.focus(),
                   add=True)
         orderScore.bind("<<ComboboxSelected>>",
                         lambda e:self.window.window.focus(),add=True)
+        selectSemester.bind("<<ComboboxSelected>>",
+                        lambda e:self.window.window.focus(),add=True)
         type.bind("<<comboFont>>",lambda e:self.comboFont(e.widget,
                         *self.window.proportionalSize),add=True)
         orderScore.bind("<<comboFont>>",lambda e:self.comboFont(e.widget,
+                        *self.window.proportionalSize),add=True)
+        selectSemester.bind("<<comboFont>>",lambda e:self.comboFont(e.widget,
                         *self.window.proportionalSize),add=True)
         self.setRanking()
 
     def setRanking(self,ratings=None):
         if ratings is None:
             order = 'desc' if self.orderVal.get() == "Nota ▾" else 'asc'
-            ratings = self.connection.avg(order,self.typeVal.get())
+            ratings = self.connection.avg(order,self.typeVal.get(),
+                                          self.selectSemesterVal.get())
         if ratings:
             grade,*name = ratings.pop()
-            if len(name) > 1:
+            if len(name) == 2:
                 rating = f"{grade:04.2f} - {name[0]} {name[1]}"
             else:
-                rating = f"{grade:04.2f} - {name[0]}"
+                rating = f"{grade:04.2f} - {name[0]}: {name[1]}, turma {name[2]}"
             rating = ttk.Label(self.rankingFrame,text=rating,
                               style="ratings.TLabel")
             self.ratings.append(rating)
@@ -81,18 +96,21 @@ class Ranking():
     def displayRanking(self,ratings=None,x=0):
         if ratings is None:
             order = 'desc' if self.orderVal.get() == "Nota ▾" else 'asc'
-            ratings = self.connection.avg(order,self.typeVal.get())
+            ratings = self.connection.avg(order,self.typeVal.get(),
+                                          self.selectSemesterVal.get())
         if ratings:
             grade,*name = ratings.pop()
-            if len(name) > 1:
+            if len(name) == 2:
                 rating = f"{grade:04.2f} - {name[0]} {name[1]}"
             else:
-                rating = f"{grade:04.2f} - {name[0]}"
+                rating = f"{grade:04.2f} - {name[0]}: {name[1]}, turma {name[2]}"
             self.ratings[x].configure(text=rating)
             self.displayRanking(ratings,x+1)
         if ratings == []:
             self.rankingArea.yview_moveto(0)
             self.rankingArea.xview_moveto(0)
+            self.rootframe.update_idletasks()
+            self.rankingArea.config(scrollregion=self.rankingArea.bbox("all"))
 
     def scroll(self,event):
         if event.state == 0:
@@ -107,8 +125,6 @@ class Ranking():
         self.fromS = fromS
         self.rootframe.grid()
         self.displayRanking()
-        self.rootframe.update_idletasks()
-        self.rankingArea.config(scrollregion=self.rankingArea.bbox("all"))
 
     def back(self):
         self.rootframe.grid_remove()
