@@ -20,8 +20,7 @@ class Ranking():
 
         self.rankingArea.grid(row=12,column=1,rowspan=31,columnspan=17,
                               sticky='nsew')
-        self.rankingFrame = ttk.Frame(self.rankingArea)
-        self.rankingArea.create_window((0,0),window=self.rankingFrame,anchor='nw')
+        self.rankingFrame = ttk.Frame()
         vScrollbar = ttk.Scrollbar(self.rootframe,command=self.rankingArea.yview)
         vScrollbar.grid(row=12,column=18,rowspan=32,columnspan=1,sticky="ns")
         hScrollbar = ttk.Scrollbar(self.rootframe,orient='horizontal',
@@ -57,10 +56,9 @@ class Ranking():
         type.event_add('<<comboFont>>','<Configure>','<Visibility>')
         orderScore.event_add('<<comboFont>>','<Configure>','<Visibility>')
         selectSemester.event_add('<<comboFont>>','<Configure>','<Visibility>')
-        type.bind("<<ComboboxSelected>>",lambda e:self.displayRanking())
-        orderScore.bind("<<ComboboxSelected>>",lambda e:self.displayRanking())
-        selectSemester.bind("<<ComboboxSelected>>",
-                           lambda e:self.displayRanking())
+        type.bind("<<ComboboxSelected>>",lambda e:self.setRanking())
+        orderScore.bind("<<ComboboxSelected>>",lambda e:self.setRanking())
+        selectSemester.bind("<<ComboboxSelected>>",lambda e:self.setRanking())
         type.bind("<<ComboboxSelected>>",lambda e:self.window.window.focus(),
                   add=True)
         orderScore.bind("<<ComboboxSelected>>",
@@ -70,10 +68,14 @@ class Ranking():
         type.bind("<<comboFont>>",self.window.comboFont,add=True)
         orderScore.bind("<<comboFont>>",self.window.comboFont,add=True)
         selectSemester.bind("<<comboFont>>",self.window.comboFont,add=True)
-        self.setRanking()
 
-    def setRanking(self,ratings=None):
+    def setRanking(self,ratings=None,level=0):
         if ratings is None:
+            if self.rankingFrame:
+                self.rankingFrame.destroy()
+            self.rankingFrame = ttk.Frame(self.rankingArea)
+            self.rankingArea.create_window((0,0),window=self.rankingFrame,
+                                           anchor='nw')
             order = 'desc' if self.orderVal.get() == "Nota ▾" else 'asc'
             ratings = self.connection.avg(order,self.typeVal.get(),
                                           self.selectSemesterVal.get())
@@ -87,22 +89,8 @@ class Ranking():
                               style="ratings.TLabel")
             self.ratings.append(rating)
             rating.pack(anchor='w')
-            self.setRanking(ratings)
-
-    def displayRanking(self,ratings=None,x=0):
-        if ratings is None:
-            order = 'desc' if self.orderVal.get() == "Nota ▾" else 'asc'
-            ratings = self.connection.avg(order,self.typeVal.get(),
-                                          self.selectSemesterVal.get())
-        if ratings:
-            grade,*name = ratings.pop()
-            if len(name) == 2:
-                rating = f"{grade:04.2f} - {name[0]} {name[1]}"
-            else:
-                rating = f"{grade:04.2f} - {name[0]}: {name[1]}, turma {name[2]}"
-            self.ratings[x].configure(text=rating)
-            self.displayRanking(ratings,x+1)
-        if ratings == []:
+            self.setRanking(ratings,level=level+1)
+        if level == 0:
             self.rankingArea.yview_moveto(0)
             self.rankingArea.xview_moveto(0)
             self.rootframe.update_idletasks()
@@ -117,7 +105,7 @@ class Ranking():
     def display(self,fromS):
         self.fromS = fromS
         self.rootframe.grid()
-        self.displayRanking()
+        self.setRanking()
         c = self.rankingArea
         c.bind("<Enter>",lambda e:c.bind_all("<MouseWheel>",self.scroll))
         c.bind("<Leave>",lambda e:c.unbind_all("<MouseWheel>"))
