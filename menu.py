@@ -1,9 +1,11 @@
 from tkinter import ttk
+from rate import RateScreen
 
 class Menu():
     def __init__(self,titlescreen,window):
         self.titlescreen = titlescreen
         self.ranking = self.titlescreen.ranking
+        self.rate = RateScreen(titlescreen,window)
         self.window = window
         self.connection = window.connection
         self.frame = ttk.Frame(self.window.window)
@@ -21,7 +23,7 @@ class Menu():
     def setWidgets(self):
         title = ttk.Label(self.frame,text="Bem vindo,",style="title.TLabel")
         self.userLabel = ttk.Label(self.frame,text="",style="title.TLabel")
-        rateClassB = ttk.Button(self.frame,command=lambda:None,
+        rateClassB = ttk.Button(self.frame,command=self.rateScreen,
                                 text="Fazer avaliação",style="options.TButton")
         myRatingsB = ttk.Button(self.frame,command=lambda:None,
                                 text="Minhas avaliações",
@@ -69,6 +71,10 @@ class Menu():
     def rankingScreen(self):
         self.frame.grid_remove()
         self.ranking.display(self)
+
+    def rateScreen(self):
+        self.frame.grid_remove()
+        self.rate.display(self)
 
     def display(self,userInfo=None):
         if userInfo:

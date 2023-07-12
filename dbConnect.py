@@ -6,6 +6,22 @@ class DbConnect:
         self.db = sqlite3.connect('./ratings.db',)
         self.cursor = self.db.cursor()
         self.cursor.execute('pragma foreign_keys = on')
+        self.cursor.execute('pragma case_sensitive_like=off')
+        self.views()
+    
+    def views(self):
+        self.cursor.execute('drop view if exists search')
+        self.cursor.execute('''create view search as
+                               select d.codigo as disciplina_codigo,
+                               d.nome as disciplina_nome,
+                               pt.FK_turma_numero as turma_numero,
+                               p.nom_prim_nome || ' ' || p.nom_sobrenome as
+                               professor_nome,
+                               pt.FK_turma_semestre as turma_semestre
+                               from disciplina d inner join professor_turma pt
+                               on d.codigo = pt.FK_disciplina_codigo
+                               inner join professor p
+                               on pt.fk_professor_matricula = p.matricula''')
 
     def close(self) -> None:
         self.db.commit()
@@ -52,3 +68,17 @@ class DbConnect:
                                 or email = "{username}")
                                 and senha = "{password}"''')
         return self.cursor.fetchall()
+
+    def search(self, s: str, semester: str) -> list[tuple[str, str]]:
+        self.cursor.execute(
+            f'''select * from search
+                where (disciplina_nome like "%{s}%"
+                      or disciplina_codigo like "%{s}%"
+                      or professor_nome like "%{s}%")
+                      and turma_semestre = {semester}
+                order by min(
+                coalesce(nullif(instr(lower(disciplina_nome),"{s}"),0),9999),
+                coalesce(nullif(instr(lower(disciplina_codigo),"{s}"),0),9999),
+                coalesce(nullif(instr(lower(professor_nome),"{s}"),0),9999))
+                limit 50;''')
+        return self.cursor.fetchall()[::-1]

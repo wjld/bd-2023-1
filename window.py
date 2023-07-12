@@ -14,6 +14,7 @@ class Window:
         self.window.rowconfigure(0,weight=1)
         self.window.columnconfigure(0,weight=1)
         self.window.bind("<Configure>",self.manageSize)
+        self.window.protocol("WM_DELETE_WINDOW",self.destroy)
 
         self.window.minsize(3*self.height//4, 9*self.height//16)
         self.proportionalSize = self.window.minsize(None)
@@ -32,13 +33,14 @@ class Window:
             self.styleConfig(self.window,self.style,*self.proportionalSize)
 
     def styleConfig(self, w: Tk, s: ttk.Style, x: int, y: int) -> None:
-        s.configure("title.TLabel",anchor="center",font=("Roboto",
-                    int(-y*0.085)))
-        s.configure("ratings.TLabel",anchor="center",
-                    font=("Roboto",int(-y*0.040)))
+        s.configure("title.TLabel",anchor="center",
+                    font=("Roboto",int(-y*0.085)))
+        s.configure("ratings.TLabel",anchor="w",font=("Roboto",int(-y*0.042)))
+        s.configure("dialog.TLabel",anchor="w",font=("Roboto",int(-y*0.032)))
         s.configure("signin.TLabel",anchor="center",
-                    font=("Roboto",int(-y*0.037)))
+                    font=("Roboto",int(-y*0.04)))
         s.configure("options.TButton",font=("Roboto",int(-y*0.042)))
+        s.configure("smallOptions.TButton",font=("Roboto",int(-y*0.032)))
         w.option_add("*TCombobox*Listbox.font",("Roboto",int(-y*0.04)))
         w.option_add("*TCombobox*Listbox.justify","center")
 
@@ -50,7 +52,7 @@ class Window:
     def entryFont(self,event):
         entry = event.widget
         x,y = self.proportionalSize
-        entry.configure(font=("Roboto",int(-y*0.035)))
+        entry.configure(font=("Roboto",int(-y*0.038)))
 
     def isResizing(self,event):
         return (event.width,event.height) != self.size
