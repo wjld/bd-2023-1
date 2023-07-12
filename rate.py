@@ -71,6 +71,8 @@ class RateScreen:
             classL = ttk.Label(result,text=classText,style="ratings.TLabel")
             teacherL = ttk.Label(result,text=info[3],style="ratings.TLabel")
             rateB.grid(row=0,column=0,rowspan=2)
+            if  self.window.connection.rated(self.fromS.userInfo[0],info):
+                rateB.state(['disabled'])
             classL.grid(row=0,column=1,sticky='nsw')
             teacherL.grid(row=1,column=1,sticky='nsw')
             result.pack(anchor='w')

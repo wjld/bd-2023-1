@@ -69,7 +69,7 @@ class DbConnect:
                                 and senha = "{password}"''')
         return self.cursor.fetchall()
 
-    def search(self, s: str, semester: str) -> list[tuple[str, str]]:
+    def search(self,s: str,semester: str) -> list[tuple[str,str]]:
         self.cursor.execute(
             f'''select * from search
                 where (disciplina_nome like "%{s}%"
@@ -82,3 +82,12 @@ class DbConnect:
                 coalesce(nullif(instr(lower(professor_nome),"{s}"),0),9999))
                 limit 50;''')
         return self.cursor.fetchall()[::-1]
+
+    def rated(self,matricula,info):
+        self.cursor.execute(f'''select exists (select * from avaliacao a 
+                                where a.FK_usuario_matricula = "{matricula}"
+                                and FK_professor_matricula = "{info[5]}"
+                                and FK_disciplina_codigo = "{info[0]}"
+                                and FK_turma_numero = "{info[2]}"
+                                and FK_turma_semestre = "{info[4]}")''')
+        return bool(self.cursor.fetchall()[0][0])
