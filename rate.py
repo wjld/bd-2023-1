@@ -1,4 +1,5 @@
 from tkinter import ttk, Canvas, StringVar
+from dialog import Dialog
 
 class RateScreen:
     def __init__(self,titlescreen,window):
@@ -95,6 +96,7 @@ class RateScreen:
 
     def rateDialog(self,info):
         self.searchTerm.focus()
+        Dialog(self.window,self.fromS.userInfo[0],info)
 
     def scroll(self,event):
         if event.state == 0:

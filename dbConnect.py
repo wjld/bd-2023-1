@@ -17,7 +17,8 @@ class DbConnect:
                                pt.FK_turma_numero as turma_numero,
                                p.nom_prim_nome || ' ' || p.nom_sobrenome as
                                professor_nome,
-                               pt.FK_turma_semestre as turma_semestre
+                               pt.FK_turma_semestre as turma_semestre,
+                               p.matricula as matricula
                                from disciplina d inner join professor_turma pt
                                on d.codigo = pt.FK_disciplina_codigo
                                inner join professor p
@@ -91,3 +92,12 @@ class DbConnect:
                                 and FK_turma_numero = "{info[2]}"
                                 and FK_turma_semestre = "{info[4]}")''')
         return bool(self.cursor.fetchall()[0][0])
+    
+    def recordRating(self,matricula,info,grade,text):
+        self.cursor.execute(f'''insert into avaliacao(texto,nota,
+                              FK_usuario_matricula,FK_professor_matricula,
+                              FK_disciplina_codigo,FK_turma_numero,
+                              FK_turma_semestre)
+                              values (?,?,?,?,?,?,?)''',
+                              [text,grade,matricula,info[5],info[0],info[2],
+                               info[4]])
