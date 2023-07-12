@@ -29,7 +29,6 @@ class Ranking():
         hScrollbar.grid(row=43,column=1,rowspan=1,columnspan=17,sticky='ew')
         self.rankingArea.configure(yscrollcommand=vScrollbar.set,
                                    xscrollcommand=hScrollbar.set)
-        self.rankingArea.bind_all("<MouseWheel>",self.scroll)
 
         self.setWidgets()
         self.rootframe.grid_remove()
@@ -119,6 +118,9 @@ class Ranking():
         self.fromS = fromS
         self.rootframe.grid()
         self.displayRanking()
+        c = self.rankingArea
+        c.bind("<Enter>",lambda e:c.bind_all("<MouseWheel>",self.scroll))
+        c.bind("<Leave>",lambda e:c.unbind_all("<MouseWheel>"))
 
     def back(self):
         self.rootframe.grid_remove()
