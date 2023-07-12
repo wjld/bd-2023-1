@@ -41,16 +41,11 @@ class Signin():
         doneB.grid(row=35,column=8,rowspan=4,columnspan=4,sticky="nsew")
         backB.grid(row=45,column=15,rowspan=4,columnspan=4,sticky="nsew")
         username.event_add('<<entryFont>>','<Configure>','<Visibility>')
-        username.bind("<<comboFont>>",lambda e:self.entryFont(e.widget,
-                      *self.window.proportionalSize),add=True)
+        username.bind("<<comboFont>>",self.window.entryFont,add=True)
         username.bind('<Key>',lambda e:self.manageKey(e))
         password.event_add('<<entryFont>>','<Configure>','<Visibility>')
-        password.bind("<<comboFont>>",lambda e:self.entryFont(e.widget,
-                      *self.window.proportionalSize),add=True)
+        password.bind("<<comboFont>>",self.window.entryFont,add=True)
         password.bind('<Key>',lambda e:self.manageKey(e))
-
-    def entryFont(self,entry,x,y):
-        entry.configure(font=("Roboto",int(-y*0.035)))
 
     def display(self):
         self.frame.grid()

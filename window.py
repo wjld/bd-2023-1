@@ -1,4 +1,4 @@
-from tkinter import Tk, ttk
+from tkinter import Tk, ttk, Toplevel
 from dbConnect import DbConnect
 
 class Window:
@@ -41,6 +41,16 @@ class Window:
         s.configure("options.TButton",font=("Roboto",int(-y*0.042)))
         w.option_add("*TCombobox*Listbox.font",("Roboto",int(-y*0.04)))
         w.option_add("*TCombobox*Listbox.justify","center")
+
+    def comboFont(self,event):
+        comboBox = event.widget
+        x,y = self.proportionalSize
+        comboBox.configure(font=("Roboto",int(-y*0.04)))
+
+    def entryFont(self,event):
+        entry = event.widget
+        x,y = self.proportionalSize
+        entry.configure(font=("Roboto",int(-y*0.035)))
 
     def isResizing(self,event):
         return (event.width,event.height) != self.size

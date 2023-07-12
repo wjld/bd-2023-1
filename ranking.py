@@ -68,12 +68,9 @@ class Ranking():
                         lambda e:self.window.window.focus(),add=True)
         selectSemester.bind("<<ComboboxSelected>>",
                         lambda e:self.window.window.focus(),add=True)
-        type.bind("<<comboFont>>",lambda e:self.comboFont(e.widget,
-                        *self.window.proportionalSize),add=True)
-        orderScore.bind("<<comboFont>>",lambda e:self.comboFont(e.widget,
-                        *self.window.proportionalSize),add=True)
-        selectSemester.bind("<<comboFont>>",lambda e:self.comboFont(e.widget,
-                        *self.window.proportionalSize),add=True)
+        type.bind("<<comboFont>>",self.window.comboFont,add=True)
+        orderScore.bind("<<comboFont>>",self.window.comboFont,add=True)
+        selectSemester.bind("<<comboFont>>",self.window.comboFont,add=True)
         self.setRanking()
 
     def setRanking(self,ratings=None):
@@ -117,9 +114,6 @@ class Ranking():
             self.rankingArea.yview_scroll(-(event.delta//120),'units')
         elif event.state == 1:
             self.rankingArea.xview_scroll(-(event.delta//120),'units')
-
-    def comboFont(self,comboBox,x,y):
-        comboBox.configure(font=("Roboto",int(-y*0.04)))
 
     def display(self,fromS):
         self.fromS = fromS
