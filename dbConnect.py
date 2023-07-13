@@ -140,3 +140,41 @@ class DbConnect:
                     and FK_turma_numero = "{info[2]}"
                     and FK_turma_semestre = "{info[4]}")''')
         return bool(self.fa()[0][0])
+
+    def getReports(self):
+        self.ex('''select u.nom_prim_nome || " " || u.nom_sobrenome,s.*,
+                   a.nota,a.texto,u.matricula
+                   from denuncia d inner join avaliacao a on
+                   d.FK_professor_matricula = a.FK_professor_matricula
+                   and d.FK_disciplina_codigo = a.FK_disciplina_codigo
+                   and d.FK_turma_numero = a.FK_turma_numero
+                   and d.FK_turma_semestre = a.FK_turma_semestre
+                   and d.FK_usuario_denunciado_matricula = 
+                       a.FK_usuario_matricula
+                   inner join search s on
+                   d.FK_professor_matricula = s.matricula
+                   and d.FK_disciplina_codigo = s.disciplina_codigo
+                   and d.FK_turma_numero = s.turma_numero
+                   and d.FK_turma_semestre = s.turma_semestre
+                   inner join usuario u
+                   on u.matricula = d.FK_usuario_denunciado_matricula
+                   group by u.matricula,s.matricula,s.disciplina_codigo,
+                   s.turma_numero,s.turma_semestre
+                   order by d.FK_turma_semestre''')
+        return self.fa()[::-1]
+
+    def deleteReport(self,*args):
+        self.ex('''delete from denuncia
+                   where FK_usuario_denunciado_matricula = ?
+                   and FK_professor_matricula = ?
+                   and FK_disciplina_codigo = ?
+                   and FK_turma_numero = ?
+                   and FK_turma_semestre = ?''',args)
+
+    def deleteUser(self,matricula):
+        self.ex(f'''delete from denuncia
+                    where FK_usuario_denunciado_matricula = "{matricula}"
+                    or FK_usuario_matricula = "{matricula}"''')
+        self.ex(f'''delete from avaliacao 
+                    where FK_usuario_matricula = "{matricula}"''')
+        self.ex(f'''delete from usuario where matricula = "{matricula}"''')
