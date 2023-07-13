@@ -43,12 +43,13 @@ class Dialog():
         textL = ttk.Label(frame,text='Descrição: ',style='dialog.TLabel')
         self.text = Text(frame,height=1,width=1,wrap='char',
                          exportselection=False)
-        if self.op == 'view':
-            self.text.insert('1.0',info[7])
         doneB = ttk.Button(frame,command=self.recordRating,text="Pronto",
                            style="smallOptions.TButton")
         backB = ttk.Button(frame,command=self.dialog.destroy,
                            text="Voltar",style="smallOptions.TButton")
+        if self.op == 'view':
+            self.text.insert('1.0',info[7])
+            backB.configure(text="Excluir",command=self.deleteRating)
 
         title1L.grid(row=2,column=1,rowspan=4,columnspan=28,sticky="nsew")
         title2L.grid(row=7,column=1,rowspan=4,columnspan=28,sticky="nsew")
@@ -150,6 +151,11 @@ class Dialog():
             self.recordRating()
         elif not avaTexto(event.widget.get('1.0','end-1c')):
             event.widget.delete('insert-1c')
+
+    def deleteRating(self):
+        self.connection.deleteRating(self.matricula,self.info)
+        self.searchS.setSResults()
+        self.dialog.destroy()
 
     def recordRating(self):
         if self.op == 'view':

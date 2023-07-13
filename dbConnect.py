@@ -98,6 +98,14 @@ class DbConnect:
                     and FK_turma_semestre = "{info[4]}")''')
         return bool(self.fa()[0][0])
     
+    def deleteRating(self,matricula,info):
+        self.deleteReport(matricula,info[5],info[0],info[2],info[4])
+        self.ex(f'''delete from avaliacao where FK_usuario_matricula = ? 
+                    and FK_professor_matricula = ? and FK_disciplina_codigo = ?
+                    and FK_turma_numero = ? and FK_turma_semestre = ?''',
+                    [matricula,info[5],info[0],info[2],
+                    info[4]])
+    
     def updateRating(self,matricula,info,grade,text):
         self.ex(f'''update avaliacao set texto = ?,nota = ?
                     where FK_usuario_matricula = ?
@@ -178,3 +186,14 @@ class DbConnect:
         self.ex(f'''delete from avaliacao 
                     where FK_usuario_matricula = "{matricula}"''')
         self.ex(f'''delete from usuario where matricula = "{matricula}"''')
+
+# a = DbConnect()
+# print(a.avg('desc','Turmas','2022.1'))
+# print(a.getSemester())
+# print(a.search('mig','2022.1'))
+# print(a.ownRatings('000000000','2023.1'))
+# print(a.getAval(('ADM0002', '', '02', '', '2023.1', '593741262')))
+# print(a.getReports())
+# a.deleteReport('697439157','593741262','ADM0002','02','2023.1')
+# print(a.getReports())
+# a.close()
