@@ -31,7 +31,6 @@ class RateScreen:
         hScrollbar.grid(row=52,column=1,rowspan=2,columnspan=42,sticky='ew')
         self.searchArea.configure(yscrollcommand=vScrollbar.set,
                                    xscrollcommand=hScrollbar.set)
-        self.searchArea.bind_all("<MouseWheel>",self.scroll)
 
         self.setWidgets()
         self.rootframe.grid_remove()
@@ -61,7 +60,7 @@ class RateScreen:
         if results is None:
             for frame in self.searchFrame.winfo_children():
                 frame.destroy()
-            if self.operation == 'search':
+            if self.operation in ['search','view others']:
                 self.searchTerm.grid()
                 self.searchB.grid()
                 results = self.connection.search(self.searchTerm.get()[:150],
@@ -86,7 +85,13 @@ class RateScreen:
             info = results.pop()
             result = ttk.Frame(self.searchFrame)
             classText = f'{info[0]}: {info[1]}, turma {info[2]}'
-            action = 'Avaliar' if self.operation == 'search' else 'Editar'
+            action = ''
+            if self.operation == 'search':
+                action = 'Avaliar'
+            elif self.operation == 'view':
+                action = 'Editar'
+            elif self.operation == 'view others':
+                action = 'Visualizar'
             rateB = ttk.Button(result,command=lambda:self.rateDialog(info),
                                text=action,style="smallOptions.TButton")
             classL = ttk.Label(result,text=classText,style="ratings.TLabel")
@@ -115,7 +120,7 @@ class RateScreen:
         elif results is not None:
             result = ttk.Frame(self.searchFrame)
             empty = ''
-            if self.operation == 'search':
+            if self.operation in ['search','view others']:
                 empty = f'Sem resultados para "{self.searchTerm.get()}".'
             elif self.operation == 'view':
                 empty = f'Ainda não há avaliações.'
@@ -124,11 +129,12 @@ class RateScreen:
             result.pack(anchor='w')
 
     def rateDialog(self,info):
-        if self.operation == 'search':
+        if self.operation in ['search','view others']:
             self.searchTerm.focus()
         elif self.operation == 'view':
             self.window.window.focus()
-        Dialog(self,info)
+        format = 'multiple' if self.operation == 'view others' else 'single'
+        Dialog(self,info,format)
 
     def scroll(self,event):
         if event.state == 0:
@@ -144,6 +150,7 @@ class RateScreen:
 
     def back(self):
         self.searchTerm.delete(0,'end')
+        self.selectSemesterVal.set(self.connection.getSemester()[0])
         for frame in self.searchFrame.winfo_children():
             frame.destroy()
         self.rootframe.grid_remove()

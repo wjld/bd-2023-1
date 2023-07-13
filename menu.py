@@ -30,7 +30,7 @@ class Menu():
                                 style="options.TButton")
         rankingB = ttk.Button(self.frame,command=self.rankingScreen,
                                   text="Ranking geral",style="options.TButton")
-        viewRatB = ttk.Button(self.frame,command=lambda:None,
+        viewRatB = ttk.Button(self.frame,command=lambda:self.rateScreen(2),
                                   text="Ver avaliações",
                                   style="options.TButton")
         adminOptB = ttk.Button(self.frame,command=self.showAdminOpt,
@@ -78,6 +78,8 @@ class Menu():
             self.rate.display(self,'search')
         elif n == 1:
             self.rate.display(self,'view')
+        elif n == 2:
+            self.rate.display(self,'view others')
 
     def display(self,userInfo=None):
         if userInfo:

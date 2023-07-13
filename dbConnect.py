@@ -15,7 +15,7 @@ class DbConnect:
     def views(self):
         self.ex('drop view if exists search')
         self.ex('''create view search as select d.codigo as disciplina_codigo,
-                   d.nome as disciplina_nome,pt.FK_turma_numeroas turma_numero,
+                   d.nome as disciplina_nome,pt.FK_turma_numero as turma_numero,
                    p.nom_prim_nome || ' ' || p.nom_sobrenome as professor_nome,
                    pt.FK_turma_semestre as turma_semestre,
                    p.matricula as matricula from disciplina d inner join
@@ -113,3 +113,30 @@ class DbConnect:
                     FK_turma_semestre) values (?,?,?,?,?,?,?)''',
                     [text,grade,matricula,info[5],info[0],info[2],
                     info[4]])
+
+    def getAval(self,info):
+        self.ex('''select a.nota, a.texto, u.nom_prim_nome, u.matricula
+                    from avaliacao a inner join usuario u
+                    on a.FK_usuario_matricula = u.matricula
+                    where a.FK_professor_matricula = ?
+                    and a.FK_disciplina_codigo = ? and a.FK_turma_numero = ?
+                    and a.FK_turma_semestre = ? order by a.nota desc''',
+                    [info[5],info[0],info[2],info[4]])
+        return self.fa()[::-1]
+
+    def report(self,matricula,info,reportedMatricula):
+        self.ex(f'''insert into denuncia (FK_usuario_matricula,
+                    FK_usuario_denunciado_matricula,FK_professor_matricula,
+                    FK_disciplina_codigo,FK_turma_numero,FK_turma_semestre)
+                    values (?,?,?,?,?,?)''',[matricula,reportedMatricula,
+                                             info[5],info[0],info[2],info[4]])
+
+    def reported(self,matricula,info,reportedMatricula):
+        self.ex(f'''select exists (select * from denuncia d 
+                    where FK_usuario_matricula = "{matricula}"
+                    and FK_usuario_denunciado_matricula = "{reportedMatricula}"
+                    and FK_professor_matricula = "{info[5]}"
+                    and FK_disciplina_codigo = "{info[0]}"
+                    and FK_turma_numero = "{info[2]}"
+                    and FK_turma_semestre = "{info[4]}")''')
+        return bool(self.fa()[0][0])
