@@ -23,9 +23,9 @@ class Menu():
     def setWidgets(self):
         title = ttk.Label(self.frame,text="Bem vindo,",style="title.TLabel")
         self.userLabel = ttk.Label(self.frame,text="",style="title.TLabel")
-        rateClassB = ttk.Button(self.frame,command=self.rateScreen,
+        rateClassB = ttk.Button(self.frame,command=lambda:self.rateScreen(0),
                                 text="Fazer avaliação",style="options.TButton")
-        myRatingsB = ttk.Button(self.frame,command=lambda:None,
+        myRatingsB = ttk.Button(self.frame,command=lambda:self.rateScreen(1),
                                 text="Minhas avaliações",
                                 style="options.TButton")
         rankingB = ttk.Button(self.frame,command=self.rankingScreen,
@@ -72,9 +72,12 @@ class Menu():
         self.frame.grid_remove()
         self.ranking.display(self)
 
-    def rateScreen(self):
+    def rateScreen(self,n):
         self.frame.grid_remove()
-        self.rate.display(self)
+        if n == 0:
+            self.rate.display(self,'search')
+        elif n == 1:
+            self.rate.display(self,'view')
 
     def display(self,userInfo=None):
         if userInfo:

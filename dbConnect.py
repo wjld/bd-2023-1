@@ -70,7 +70,7 @@ class DbConnect:
                                 and senha = "{password}"''')
         return self.cursor.fetchall()
 
-    def search(self,s: str,semester: str) -> list[tuple[str,str]]:
+    def search(self,s,semester):
         self.cursor.execute(
             f'''select * from search
                 where (disciplina_nome like "%{s}%"
@@ -82,6 +82,21 @@ class DbConnect:
                 coalesce(nullif(instr(lower(disciplina_codigo),"{s}"),0),9999),
                 coalesce(nullif(instr(lower(professor_nome),"{s}"),0),9999))
                 limit 50;''')
+        return self.cursor.fetchall()[::-1] if s else None
+    
+    def viewOwn(self,matricula,semester):
+        self.cursor.execute(f'''select a.FK_disciplina_codigo,d.nome,
+                                a.FK_turma_numero,
+                                p.nom_prim_nome || ' ' || p.nom_sobrenome,
+                                a.FK_turma_semestre,p.matricula,a.nota,
+                                a.texto from avaliacao a
+                                inner join professor p 
+                                on p.matricula = a.FK_professor_matricula
+                                inner join disciplina d 
+                                on d.codigo = a.FK_disciplina_codigo
+                                where a.FK_usuario_matricula =
+                                      "{matricula}"
+                                and a.FK_turma_semestre = {semester}''')
         return self.cursor.fetchall()[::-1]
 
     def rated(self,matricula,info):
@@ -92,6 +107,16 @@ class DbConnect:
                                 and FK_turma_numero = "{info[2]}"
                                 and FK_turma_semestre = "{info[4]}")''')
         return bool(self.cursor.fetchall()[0][0])
+    
+    def updateRating(self,matricula,info,grade,text):
+        self.cursor.execute(f'''update avaliacao set texto = ?,nota = ? where
+                                FK_usuario_matricula = ?
+                                and FK_professor_matricula = ?
+                                and FK_disciplina_codigo = ?
+                                and FK_turma_numero = ?
+                                and FK_turma_semestre = ?''',
+                                [text,grade,matricula,info[5],info[0],info[2],
+                                 info[4]])
     
     def recordRating(self,matricula,info,grade,text):
         self.cursor.execute(f'''insert into avaliacao(texto,nota,

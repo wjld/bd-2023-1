@@ -36,6 +36,7 @@ class Window:
         s.configure("title.TLabel",anchor="center",
                     font=("Roboto",int(-y*0.085)))
         s.configure("ratings.TLabel",anchor="w",font=("Roboto",int(-y*0.042)))
+        s.configure("grade.TLabel",anchor="e",font=("Roboto",int(-y*0.038)))
         s.configure("dialog.TLabel",anchor="w",font=("Roboto",int(-y*0.032)))
         s.configure("signin.TLabel",anchor="center",
                     font=("Roboto",int(-y*0.04)))

@@ -16,6 +16,10 @@ class RateScreen:
         x,y = self.window.window.minsize(None)
         window.split(self.rootframe,45,60,x//45,y//60)
 
+        self.searchTerm = ttk.Entry(self.rootframe,exportselection=False,
+                               justify="center")
+        self.searchB = ttk.Button(self.rootframe,command=self.setSResults,
+                                  text="Buscar",style="options.TButton")
         self.searchArea.grid(row=7,column=1,rowspan=45,columnspan=42,
                               sticky='nsew')
         self.searchFrame = ttk.Frame(self.searchArea)
@@ -33,10 +37,6 @@ class RateScreen:
         self.rootframe.grid_remove()
 
     def setWidgets(self):
-        self.searchTerm = ttk.Entry(self.rootframe,exportselection=False,
-                               justify="center")
-        searchB = ttk.Button(self.rootframe,command=self.setSResults,
-                             text="Buscar",style="options.TButton")
         selectSemester = ttk.Combobox(self.rootframe,justify="center",
                                   state="readonly",width=5,
                                   textvariable=self.selectSemesterVal,
@@ -46,7 +46,7 @@ class RateScreen:
 
         self.searchTerm.grid(row=2,column=1,rowspan=4,columnspan=20,
                              sticky="nsew")
-        searchB.grid(row=2,column=22,rowspan=4,columnspan=9,sticky="nsew")
+        self.searchB.grid(row=2,column=22,rowspan=4,columnspan=9,sticky="nsew")
         selectSemester.grid(row=2,column=35,rowspan=4,columnspan=9,
                             sticky="nsew")
         backB.grid(row=55,column=35,rowspan=4,columnspan=9,sticky="nsew")
@@ -58,45 +58,77 @@ class RateScreen:
         selectSemester.bind("<<comboFont>>",self.window.comboFont,add=True)
 
     def setSResults(self,results=None,level=0):
-        if results is None and self.searchTerm.get():
+        if results is None:
             for frame in self.searchFrame.winfo_children():
                 frame.destroy()
-            results = self.connection.search(self.searchTerm.get()[:150],
-                                             self.selectSemesterVal.get())
+            if self.operation == 'search':
+                self.searchTerm.grid()
+                self.searchB.grid()
+                results = self.connection.search(self.searchTerm.get()[:150],
+                                                 self.selectSemesterVal.get())
+            elif self.operation == 'view':
+                self.searchTerm.grid_remove()
+                self.searchB.grid_remove()
+                results = self.connection.viewOwn(self.fromS.userInfo[0],
+                                                  self.selectSemesterVal.get())
+        self.manageResults(results,level)
+        if level == 0:
+            self.searchArea.yview_moveto(0)
+            self.searchArea.xview_moveto(0)
+            self.rootframe.update_idletasks()
+            self.searchArea.config(scrollregion=self.searchArea.bbox("all"))
+            c = self.searchArea
+            c.bind("<Enter>",lambda e:c.bind_all("<MouseWheel>",self.scroll))
+            c.bind("<Leave>",lambda e:c.unbind_all("<MouseWheel>"))
+
+    def manageResults(self,results,level):
         if results:
             info = results.pop()
-            classText = f'{info[0]}: {info[1]}, turma {info[2]}'
             result = ttk.Frame(self.searchFrame)
+            classText = f'{info[0]}: {info[1]}, turma {info[2]}'
+            action = 'Avaliar' if self.operation == 'search' else 'Editar'
             rateB = ttk.Button(result,command=lambda:self.rateDialog(info),
-                               text="Avaliar",style="smallOptions.TButton")
+                               text=action,style="smallOptions.TButton")
             classL = ttk.Label(result,text=classText,style="ratings.TLabel")
             teacherL = ttk.Label(result,text=info[3],style="ratings.TLabel")
             rateB.grid(row=0,column=0,rowspan=2)
-            if  self.window.connection.rated(self.fromS.userInfo[0],info):
+            if (self.operation == 'search'
+                and self.window.connection.rated(self.fromS.userInfo[0],info)):
                 rateB.state(['disabled'])
+            if self.operation == 'view':
+                gradeL = ttk.Label(result,text=f'Nota: {info[6]}',
+                                   style="grade.TLabel")
+                gradeL.grid(row=2,column=0,sticky='nse')
+                maxLen = max(len(classText),len(info[3]))
+                i, r = 0, 2
+                while i < len(info[7]):
+                    j = len(info[7]) if len(info[7]) - i <= 15 else i + maxLen
+                    text = f'{"Descrição: " if i == 0 else ""}{info[7][i:j]}'
+                    textL = ttk.Label(result,text=text,style="ratings.TLabel")
+                    textL.grid(row=r,column=1,sticky='nsw')
+                    i += maxLen
+                    r += 1
             classL.grid(row=0,column=1,sticky='nsw')
             teacherL.grid(row=1,column=1,sticky='nsw')
             result.pack(anchor='w')
             self.setSResults(results,level=level+1) if results else None
         elif results is not None:
             result = ttk.Frame(self.searchFrame)
-            empty = f'Sem resultados para "{self.searchTerm.get()}".'
+            empty = ''
+            if self.operation == 'search':
+                empty = f'Sem resultados para "{self.searchTerm.get()}".'
+            elif self.operation == 'view':
+                empty = f'Ainda não há avaliações.'
             emptyL = ttk.Label(result,text=empty,style="ratings.TLabel")
             emptyL.pack()
             result.pack(anchor='w')
-        if level == 0:
-            self.searchArea.yview_moveto(0)
-            self.searchArea.xview_moveto(0)
-            self.rootframe.update_idletasks()
-            self.searchArea.config(scrollregion=self.searchArea.bbox("all"))
-            self.searchTerm.focus()
-            c = self.searchArea
-            c.bind("<Enter>",lambda e:c.bind_all("<MouseWheel>",self.scroll))
-            c.bind("<Leave>",lambda e:c.unbind_all("<MouseWheel>"))
 
     def rateDialog(self,info):
-        self.searchTerm.focus()
-        Dialog(self.window,self.fromS.userInfo[0],info)
+        if self.operation == 'search':
+            self.searchTerm.focus()
+        elif self.operation == 'view':
+            self.window.window.focus()
+        Dialog(self,info)
 
     def scroll(self,event):
         if event.state == 0:
@@ -104,11 +136,11 @@ class RateScreen:
         elif event.state == 1:
             self.searchArea.xview_scroll(-(event.delta//120),'units')
 
-    def display(self,fromS):
+    def display(self,fromS,op):
         self.fromS = fromS
+        self.operation = op
         self.rootframe.grid()
         self.setSResults()
-        self.searchTerm.focus()
 
     def back(self):
         self.searchTerm.delete(0,'end')

@@ -2,8 +2,10 @@ from tkinter import ttk, Toplevel, StringVar, Text
 from validate import avaTexto
 
 class Dialog():
-    def __init__(self,window,matricula,info):
-        self.window = window
+    def __init__(self,searchS,info):
+        self.searchS = searchS
+        self.window = searchS.window
+        self.connection = self.window.connection
         self.dialog = Toplevel()
         self.dialog.grab_set()
         x = self.window.window.winfo_width()
@@ -17,10 +19,11 @@ class Dialog():
         self.dialog.columnconfigure(0,weight=1)
 
         frame = ttk.Frame(self.dialog)
-        self.gradeVal = StringVar(frame,'5')
-        self.lastText = ''
         self.info = info
-        self.matricula = matricula
+        self.matricula = searchS.fromS.userInfo[0]
+        self.op = searchS.operation
+        initGrade = '5' if self.op == 'search' else str(info[6])
+        self.gradeVal = StringVar(frame,initGrade)
         frame.grid(sticky="nsew")
         self.window.split(frame,30,45,int(1.5*size)//30,size//45)
 
@@ -38,6 +41,8 @@ class Dialog():
         textL = ttk.Label(frame,text='Descrição: ',style='dialog.TLabel')
         self.text = Text(frame,height=1,width=1,wrap='char',
                          exportselection=False)
+        if self.op == 'view':
+            self.text.insert('1.0',info[7])
         doneB = ttk.Button(frame,command=self.recordRating,text="Pronto",
                            style="smallOptions.TButton")
         backB = ttk.Button(frame,command=self.dialog.destroy,
@@ -66,11 +71,19 @@ class Dialog():
         comboBox.configure(font=("Roboto",int(-y*0.032)))
 
     def limitInput(self,event):
-        if not avaTexto(event.widget.get('1.0','end-1c')):
+        if event.keysym == 'Return':
+            self.recordRating()
+        elif not avaTexto(event.widget.get('1.0','end-1c')):
             event.widget.delete('insert-1c')
 
     def recordRating(self):
-        self.window.connection.recordRating(self.matricula,self.info,
-                                            int(self.gradeVal.get()),
-                                            self.text.get('1.0','end-1c'))
+        if self.op == 'view':
+            self.connection.updateRating(self.matricula,self.info,
+                                         int(self.gradeVal.get()),
+                                         self.text.get('1.0','end-1c'))
+            self.searchS.setSResults()
+        elif self.op == 'search':
+            self.connection.recordRating(self.matricula,self.info,
+                                         int(self.gradeVal.get()),
+                                         self.text.get('1.0','end-1c'))
         self.dialog.destroy()
