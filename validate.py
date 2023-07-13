@@ -43,7 +43,8 @@ def usuEmail(s: str) -> bool:
             for c in n:
                 validN = validN and (c.isalnum() or c in sep)
             validD: bool = (len(d) >= 3 and '.' in d and not d.startswith('.')
-                            and not d.endswith('.'))
+                            and not d.endswith('.')
+                            and d.replace('.','').isalnum())
             for c in n:
                 validN = validN and (c.isalnum() or c in sep)
             return validN and validD
@@ -52,7 +53,7 @@ def usuEmail(s: str) -> bool:
     return False
 
 def usuCurso(s: str) -> bool:
-    return bool(s) and len(s) <= 50 and s.isalpha()
+    return bool(s) and len(s) <= 50 and s.replace(' ','').isalpha()
 
 def depCodigo(s: str) -> bool:
     return len(s) == 4 and s.isdigit()

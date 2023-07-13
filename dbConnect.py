@@ -26,6 +26,24 @@ class DbConnect:
     def close(self) -> None:
         self.cl()
 
+    def matExists(self,matricula):
+        self.ex(f'''select exists (select * from usuario 
+                                   where matricula = "{matricula}")''')
+        return bool(self.fa()[0][0])
+
+    def emailExists(self,email):
+        self.ex(f'''select exists (select * from usuario 
+                                   where email = "{email}")''')
+        return bool(self.fa()[0][0])
+    
+    def userRegister(self,args):
+        shouldBeAdmin = int(not self.hasAdmins())
+        self.ex('''insert into usuario (matricula,senha,nom_prim_nome,
+                   nom_sobrenome,email,curso,administrador)
+                   values (?,?,?,?,?,?,?)''',args+[shouldBeAdmin])
+        self.db.commit()
+        return shouldBeAdmin
+
     def getSemester(self):
         self.ex('''select semestre from turma group by semestre
                    order by semestre desc''')

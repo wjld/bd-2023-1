@@ -1,6 +1,6 @@
-from tkinter import StringVar, ttk, Canvas
-
+from tkinter import ttk
 from menu import Menu
+from hashlib import sha3_256
 
 class Signin():
     def __init__(self,titlescreen,window):
@@ -51,7 +51,8 @@ class Signin():
     
     def done(self):
         username, password = self.fields[:2]
-        userInfo = self.connection.signin(username.get(),password.get())
+        passW = sha3_256(password.get().encode('utf8')).digest().hex()
+        userInfo = self.connection.signin(username.get(),passW)
         if userInfo == []:
             self.fields[2].grid(row=13,column=6,rowspan=3,columnspan=8,
                                 sticky="nsew")

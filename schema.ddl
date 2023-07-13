@@ -76,14 +76,14 @@ create table turma (
 
 create table usuario (
      matricula char(9) not null,
-     senha varchar(100) not null,
+     senha char(64) not null,
      nom_prim_nome varchar(15) not null,
      nom_sobrenome varchar(60) not null,
      email char(100) not null,
      curso char(50) not null,
      administrador boolean not null,
      constraint ID_usuario_ID primary key (matricula),
-     constraint MIN_usuario_senha check (length(senha) >= 8));
+     constraint MIN_usuario_senha check (length(senha) = 64));
 
 create unique index ID_avaliacao_IND
      on avaliacao (FK_usuario_matricula, FK_professor_matricula, FK_disciplina_codigo, FK_turma_numero, FK_turma_semestre);
