@@ -1,4 +1,4 @@
-from tkinter import StringVar, ttk, Canvas
+from tkinter import ttk, Canvas
 
 class Reports():
     def __init__(self,titlescreen,window):

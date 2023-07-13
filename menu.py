@@ -1,6 +1,7 @@
 from tkinter import ttk
 from rate import RateScreen
 from reports import Reports
+from setAdmins import SetAdmins
 
 class Menu():
     def __init__(self,titlescreen,window):
@@ -8,6 +9,7 @@ class Menu():
         self.ranking = self.titlescreen.ranking
         self.rate = RateScreen(titlescreen,window)
         self.reportsScreen = Reports(titlescreen,window)
+        self.setAdminsScreen = SetAdmins(titlescreen,window)
         self.window = window
         self.connection = window.connection
         self.frame = ttk.Frame(self.window.window)
@@ -47,7 +49,7 @@ class Menu():
         reviewRepB = ttk.Button(self.frame,command=self.reviewReports,
                                    text="Analisar denúncias",
                                    style="options.TButton")
-        setAdminsB = ttk.Button(self.frame,command=lambda:None,
+        setAdminsB = ttk.Button(self.frame,command=self.setAdmins,
                                    text="Configurar administradores",
                                    style="options.TButton")
         quitB = ttk.Button(self.frame,command=self.quit,text="Sair",
@@ -86,6 +88,10 @@ class Menu():
     def reviewReports(self):
         self.frame.grid_remove()
         self.reportsScreen.display(self,self.userInfo[0])
+
+    def setAdmins(self):
+        self.frame.grid_remove()
+        self.setAdminsScreen.display(self)
 
     def display(self,userInfo=None):
         if userInfo:

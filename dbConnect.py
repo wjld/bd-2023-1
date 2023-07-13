@@ -24,7 +24,6 @@ class DbConnect:
                    on pt.fk_professor_matricula = p.matricula''')
 
     def close(self) -> None:
-        self.db.commit()
         self.cl()
 
     def getSemester(self):
@@ -105,6 +104,7 @@ class DbConnect:
                     and FK_turma_numero = ? and FK_turma_semestre = ?''',
                     [matricula,info[5],info[0],info[2],
                     info[4]])
+        self.db.commit()
     
     def updateRating(self,matricula,info,grade,text):
         self.ex(f'''update avaliacao set texto = ?,nota = ?
@@ -113,6 +113,7 @@ class DbConnect:
                     and FK_turma_numero = ? and FK_turma_semestre = ?''',
                     [text,grade,matricula,info[5],info[0],info[2],
                         info[4]])
+        self.db.commit()
     
     def recordRating(self,matricula,info,grade,text):
         self.ex(f'''insert into avaliacao(texto,nota,
@@ -121,6 +122,7 @@ class DbConnect:
                     FK_turma_semestre) values (?,?,?,?,?,?,?)''',
                     [text,grade,matricula,info[5],info[0],info[2],
                     info[4]])
+        self.db.commit()
 
     def getAval(self,info):
         self.ex('''select a.nota, a.texto, u.nom_prim_nome, u.matricula
@@ -138,6 +140,7 @@ class DbConnect:
                     FK_disciplina_codigo,FK_turma_numero,FK_turma_semestre)
                     values (?,?,?,?,?,?)''',[matricula,reportedMatricula,
                                              info[5],info[0],info[2],info[4]])
+        self.db.commit()
 
     def reported(self,matricula,info,reportedMatricula):
         self.ex(f'''select exists (select * from denuncia d 
@@ -178,6 +181,7 @@ class DbConnect:
                    and FK_disciplina_codigo = ?
                    and FK_turma_numero = ?
                    and FK_turma_semestre = ?''',args)
+        self.db.commit()
 
     def deleteUser(self,matricula):
         self.ex(f'''delete from denuncia
@@ -186,14 +190,28 @@ class DbConnect:
         self.ex(f'''delete from avaliacao 
                     where FK_usuario_matricula = "{matricula}"''')
         self.ex(f'''delete from usuario where matricula = "{matricula}"''')
+        self.db.commit()
 
-# a = DbConnect()
-# print(a.avg('desc','Turmas','2022.1'))
-# print(a.getSemester())
-# print(a.search('mig','2022.1'))
-# print(a.ownRatings('000000000','2023.1'))
-# print(a.getAval(('ADM0002', '', '02', '', '2023.1', '593741262')))
-# print(a.getReports())
-# a.deleteReport('697439157','593741262','ADM0002','02','2023.1')
-# print(a.getReports())
-# a.close()
+    def searchUsers(self,s):
+        self.ex(f'''select nom_prim_nome || " " || nom_sobrenome,matricula,
+                email,curso,administrador from usuario
+                where (nom_prim_nome || " " || nom_sobrenome like "%{s}%"
+                       or matricula like "%{s}%" or email like "%{s}%")
+                order by min(
+                coalesce(nullif(instr(
+                lower(nom_prim_nome || " " || nom_sobrenome),"{s}"),0),9999),
+                coalesce(nullif(instr(lower(matricula),"{s}"),0),9999),
+                coalesce(nullif(instr(lower(email),"{s}"),0),9999))
+                limit 50;''')
+        return self.fa()[::-1] if s else None
+
+    def otherAdmins(self,matricula):
+        self.ex(f'''select exists (select * from usuario
+                                   where matricula <> "{matricula}"
+                                   and administrador = TRUE)''')
+        return bool(self.fa()[0][0])
+
+    def toggleAdmin(self,matricula,boolean):
+        self.ex(f'''update usuario set administrador = ?
+                    where matricula = ?''',[int(boolean),matricula])
+        self.db.commit()
